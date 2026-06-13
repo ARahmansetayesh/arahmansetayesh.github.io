@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>document.documentElement.className+=' js';</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Replacing OpenVLA&rsquo;s Binned Action Tokens with Text-Action Tokens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1EDE3;
+    --paper-2:#EAE5D8;
+    --ink:#1B1A14;
+    --ink-soft:#4A463A;
+    --accent:#C8431B;
+    --accent-deep:#9E3413;
+    --slate:#3F5247;
+    --line:rgba(27,26,20,.16);
+    --line-strong:rgba(27,26,20,.35);
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-weight:300;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* subtle paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.5;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+  a{color:inherit}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(241,237,227,.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 18px;height:auto;min-height:58px;padding-top:12px;padding-bottom:12px}
+  .brand{font-family:var(--mono);font-weight:600;letter-spacing:-.02em;font-size:15px}
+  .brand .dot{color:var(--accent)}
+  .navlinks{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;font-family:var(--mono);font-size:12.5px;letter-spacing:.02em}
+  .navlinks a{text-decoration:none;color:var(--ink-soft);transition:color .2s}
+  .navlinks a:hover{color:var(--accent)}
+  .navlinks a.nav-sub{font-size:11.5px;color:var(--ink-soft);opacity:.88;padding-left:2px}
+  .navlinks a.nav-sub::before{content:"· ";color:var(--accent-deep)}
+  .navlinks .nav-break{flex-basis:100%;height:0}
+  @media(min-width:721px){.navlinks .nav-break{display:none}}
+  @media(max-width:720px){.navlinks{display:none}}
+
+  /* ---------- HERO ---------- */
+  header{padding:88px 0 70px;border-bottom:1px solid var(--line);position:relative}
+  .eyebrow{
+    font-family:var(--mono);font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent-deep);margin-bottom:26px;
+    opacity:0;animation:rise .7s .05s forwards;
+  }
+  h1{
+    font-family:var(--mono);font-weight:600;letter-spacing:-.035em;
+    font-size:clamp(34px,6vw,68px);line-height:1.02;max-width:16ch;
+    opacity:0;animation:rise .8s .12s forwards;
+  }
+  h1 em{font-style:normal;color:var(--accent)}
+  .sub{
+    margin-top:26px;max-width:60ch;font-size:18px;color:var(--ink-soft);
+    opacity:0;animation:rise .8s .2s forwards;
+  }
+  .authors{
+    margin-top:34px;font-family:var(--mono);font-size:13.5px;color:var(--ink);
+    display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;
+    opacity:0;animation:rise .8s .28s forwards;
+  }
+  .authors .who{font-weight:500}
+  .authors .meta{color:var(--ink-soft)}
+
+  .badges{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px;margin-bottom:8px}
+  .badge{border:1px solid var(--line-strong);border-radius:3px;padding:11px 16px;background:transparent}
+  .badge b{font-family:var(--mono);font-size:22px;font-weight:600;display:block;letter-spacing:-.02em}
+  .badge span{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  .badge.accent b{color:var(--accent)}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:74px 0;border-bottom:1px solid var(--line)}
+  .sechead{display:flex;align-items:baseline;gap:18px;margin-bottom:34px}
+  .sechead .num{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:600;letter-spacing:.1em}
+  .sechead h2{font-family:var(--mono);font-weight:600;font-size:clamp(22px,3.4vw,30px);letter-spacing:-.025em}
+  .sechead .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px}
+  .sechead.compact{margin-bottom:24px}
+  .result-block{padding-top:52px;margin-top:52px;border-top:1px solid var(--line)}
+  .result-block:first-of-type{padding-top:0;margin-top:36px;border-top:none}
+  .subsechead{margin-bottom:24px}
+  .subsechead h3{font-family:var(--mono);font-weight:600;font-size:clamp(19px,2.8vw,24px);letter-spacing:-.02em}
+  .paper-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+  @media(max-width:760px){.paper-grid{grid-template-columns:1fr}}
+  .paper-card{border:1px solid var(--line-strong);border-radius:4px;padding:22px;background:var(--paper-2)}
+  .paper-card .cite{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:8px}
+  .paper-card h3{font-family:var(--mono);font-weight:600;font-size:16px;letter-spacing:-.02em;margin-bottom:10px}
+  .paper-card p{font-size:14.5px;color:var(--ink-soft);line-height:1.6}
+  .paper-card a{color:var(--accent-deep);text-decoration:none}
+  .paper-card a:hover{text-decoration:underline}
+  .cmp-table td:first-child{font-weight:500;color:var(--ink)}
+  .lead{font-size:18.5px;max-width:68ch;color:var(--ink);font-weight:300}
+  .lead+.lead{margin-top:18px}
+  p.body{font-size:16px;max-width:70ch;color:var(--ink-soft);margin-top:16px}
+  .body strong{color:var(--ink);font-weight:500}
+  code,.kbd{font-family:var(--mono);font-size:.92em;background:var(--paper-2);border:1px solid var(--line);border-radius:3px;padding:1px 6px}
+
+  /* method cards */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px}
+  @media(max-width:760px){.grid3{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line-strong);border-radius:4px;padding:22px;background:var(--paper-2)}
+  .card .ct{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:11px}
+  .card h3{font-family:var(--mono);font-weight:600;font-size:17px;letter-spacing:-.02em;margin-bottom:9px}
+  .card p{font-size:14.5px;color:var(--ink-soft)}
+
+  /* method cases */
+  .method-cases{display:flex;flex-direction:column;gap:28px;margin-top:28px}
+  .method-case{border:1px solid var(--line-strong);border-radius:4px;padding:26px 24px;background:var(--paper-2)}
+  .case-head{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
+  .case-num{
+    font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;
+    color:var(--paper);background:var(--accent-deep);border-radius:3px;padding:4px 9px;
+  }
+  .method-case h3{font-family:var(--mono);font-weight:600;font-size:18px;letter-spacing:-.02em}
+  .method-case .body{margin-top:0;max-width:72ch}
+  .example-panel{
+    margin-top:16px;border:1px solid var(--line-strong);border-radius:4px;
+    background:var(--paper);padding:18px 20px;
+  }
+  .example-panel .cap{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:13px;display:flex;justify-content:space-between;gap:12px;
+  }
+  .example-panel .cap .tag{color:var(--accent);display:flex;align-items:center;gap:7px;white-space:nowrap}
+  .example-panel .cap .tag.live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 1.6s infinite}
+  .example-row{
+    font-family:var(--mono);font-size:clamp(12px,1.75vw,15px);font-weight:500;
+    line-height:1.85;letter-spacing:-.01em;display:flex;flex-wrap:wrap;
+    gap:4px 18px;align-items:baseline;min-height:1.85em;
+  }
+  .example-row .pair{white-space:nowrap}
+  .example-row .k{color:var(--accent);font-weight:500}
+  .example-row .v{color:var(--ink)}
+  .example-row .phrase{white-space:nowrap}
+  .example-row .ax{color:var(--accent);font-weight:500}
+  .example-row .mv{color:var(--slate)}
+  .example-row .tier{color:var(--accent-deep);font-weight:600}
+  .example-row .sep{color:var(--ink-soft);margin:0 -8px 0 -2px}
+
+  /* results table */
+  .tablewrap{margin-top:12px;border:1px solid var(--line-strong);border-radius:4px;overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  thead th{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+    text-align:left;padding:14px 18px;background:var(--ink);color:var(--paper);font-weight:500;
+  }
+  tbody td{padding:15px 18px;border-top:1px solid var(--line)}
+  tbody tr:nth-child(odd){background:rgba(234,229,216,.5)}
+  td.method{font-weight:500}
+  td.num{font-family:var(--mono);font-weight:600;text-align:right;letter-spacing:-.01em}
+  .pill{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:20px;border:1px solid var(--line-strong);color:var(--ink-soft)}
+  .pill.ours{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+  .pill.ceil{background:var(--slate);color:var(--paper);border-color:var(--slate)}
+  .tbd{color:var(--accent-deep);font-family:var(--mono);font-weight:600}
+  .tnote{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-top:12px}
+
+  /* comparison split (ordering) */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:14px}
+  @media(max-width:760px){.split{grid-template-columns:1fr}}
+  .ocard{border:1px solid var(--line-strong);border-radius:4px;padding:24px;background:var(--paper-2);position:relative;overflow:hidden}
+  .ocard.hot{border-color:var(--accent)}
+  .ocard .tag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+  .ocard.hot .tag{color:var(--accent)}
+  .ocard .big{font-family:var(--mono);font-size:46px;font-weight:700;letter-spacing:-.04em;line-height:1;margin:14px 0 4px}
+  .ocard.hot .big{color:var(--accent)}
+  .ocard .bigsub{font-family:var(--mono);font-size:13px;color:var(--ink-soft)}
+  .ocard .samples{margin-top:18px;display:flex;flex-direction:column;gap:5px}
+  .ocard .samples .o{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ocard .samples .o b{color:var(--ink);font-weight:500}
+
+  /* video grid */
+  .vgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:14px}
+  @media(max-width:760px){.vgrid{grid-template-columns:1fr}}
+  .vid{border:1px solid var(--line-strong);border-radius:4px;overflow:hidden;background:var(--paper-2)}
+  .vid .frame{
+    aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:14px;background:
+      repeating-linear-gradient(45deg,transparent,transparent 11px,rgba(27,26,20,.04) 11px,rgba(27,26,20,.04) 12px),
+      var(--paper);
+    color:var(--ink-soft);position:relative;
+  }
+  .vid .frame .play{width:54px;height:54px;border-radius:50%;border:1.5px solid var(--line-strong);display:flex;align-items:center;justify-content:center}
+  .vid .frame .play::after{content:"";border-left:15px solid var(--accent);border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px}
+  .vid .frame .ph{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+  .vid .cap{padding:14px 16px;border-top:1px solid var(--line)}
+  .vid .cap .t{font-family:var(--mono);font-weight:600;font-size:13.5px;letter-spacing:-.01em}
+  .vid .cap .d{font-size:13px;color:var(--ink-soft);margin-top:3px}
+  .vid video{width:100%;display:block;aspect-ratio:1/1;object-fit:cover;background:#1B1A14}
+
+  /* native bar chart */
+  .barpanel{margin-top:24px;border:1px solid var(--line-strong);border-radius:4px;background:var(--paper-2);padding:22px 24px 20px}
+  .barpanel .head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 14px;margin-bottom:22px}
+  .barpanel .head .t{font-family:var(--mono);font-weight:600;font-size:13.5px;letter-spacing:-.01em}
+  .barpanel .head .d{font-size:13px;color:var(--ink-soft);max-width:52ch;line-height:1.45}
+  .barchart{display:flex;gap:14px;align-items:stretch;height:280px}
+  .barchart-y{
+    flex:0 0 36px;display:flex;flex-direction:column;justify-content:space-between;
+    font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);padding:18px 0 36px;text-align:right;
+  }
+  .barchart-main{
+    flex:1;position:relative;border-left:1px solid var(--line-strong);border-bottom:1px solid var(--line-strong);min-width:0;
+    background:
+      linear-gradient(to top,var(--line) 1px,transparent 1px) 0 0/100% 25%,
+      linear-gradient(to top,var(--line) 1px,transparent 1px) 0 0/100% 50%,
+      linear-gradient(to top,var(--line) 1px,transparent 1px) 0 0/100% 75%;
+  }
+  .barchart-bars{
+    position:absolute;inset:18px 6% 36px 0;display:flex;align-items:stretch;justify-content:space-around;gap:10px;
+  }
+  .barchol{flex:1;max-width:92px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+  .barchol .barval{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--ink);line-height:1;flex-shrink:0}
+  .barchol .bartrack{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;min-height:0}
+  .barchol .bar{width:100%;max-width:56px;border-radius:3px 3px 0 0;min-height:2px}
+  .barchol .bar.ceil{background:var(--slate)}
+  .barchol .bar.q7{background:rgba(200,67,27,.42);border:1px solid rgba(200,67,27,.55)}
+  .barchol .bar.q9{background:rgba(200,67,27,.68);border:1px solid rgba(200,67,27,.82)}
+  .barchol .bar.q11{background:var(--accent);border:1px solid var(--accent-deep)}
+  .barchol .barlab{font-family:var(--mono);font-size:10px;color:var(--ink-soft);text-align:center;line-height:1.3;flex-shrink:0;max-width:120px}
+  .barlegend{
+    margin-top:16px;display:flex;flex-wrap:wrap;gap:14px 22px;font-family:var(--mono);font-size:11px;color:var(--ink-soft);
+  }
+  .barlegend span{display:flex;align-items:center;gap:7px}
+  .barlegend i{width:14px;height:14px;border-radius:2px;display:inline-block;flex-shrink:0}
+  .barlegend i.ceil{background:var(--slate)}
+  .barlegend i.q{background:var(--accent)}
+  @media(max-width:560px){
+    .barchart-bars{padding:0 2%;gap:6px}
+    .barchol .bar{max-width:44px}
+    .barchol .barval{font-size:10px}
+    .barchol .barlab{font-size:10px}
+  }
+
+  /* recovery timeline */
+  .timeline{margin-top:26px;border:1px solid var(--line-strong);border-radius:4px;background:var(--paper-2);padding:30px 26px}
+  .track{position:relative;height:3px;background:var(--line-strong);margin:46px 10px 10px}
+  .track .seg{position:absolute;height:3px;top:0}
+  .track .seg.grasp{background:var(--accent)}
+  .node{position:absolute;top:-6px;transform:translateX(-50%);text-align:center}
+  .node .dot{width:15px;height:15px;border-radius:50%;background:var(--paper);border:3px solid var(--ink);margin:0 auto}
+  .node.hot .dot{border-color:var(--accent);background:var(--accent)}
+  .node .lab{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;white-space:nowrap;color:var(--ink-soft)}
+  .node .lab b{display:block;color:var(--ink);font-size:12px}
+  .node.hot .lab b{color:var(--accent)}
+  .tlegend{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-top:18px;display:flex;gap:20px;flex-wrap:wrap}
+  .tlegend span{display:flex;align-items:center;gap:7px}
+  .tlegend i{width:18px;height:3px;display:inline-block}
+
+  .callout{border-left:3px solid var(--accent);padding:6px 0 6px 22px;margin-top:24px;max-width:70ch}
+  .callout p{font-size:15.5px;color:var(--ink);font-style:italic}
+
+  ul.clean{list-style:none;margin-top:16px;max-width:70ch}
+  ul.clean li{padding:11px 0 11px 28px;border-bottom:1px solid var(--line);position:relative;font-size:15.5px;color:var(--ink-soft)}
+  ul.clean li::before{content:"→";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}
+  ul.clean li b{color:var(--ink);font-weight:500}
+
+  footer{padding:54px 0 70px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;align-items:flex-end}
+  footer .big{font-family:var(--mono);font-weight:600;font-size:20px;letter-spacing:-.02em}
+  footer .meta{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);line-height:1.9}
+  footer a{color:var(--accent-deep);text-decoration:none}
+
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .js .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">actions<span class="dot">.</span>as<span class="dot">.</span>text</div>
+    <div class="navlinks">
+      <a href="#overview">Overview</a>
+      <a href="#method">Method</a>
+      <a href="#results">Results</a>
+      <span class="nav-break"></span>
+      <a href="#task-success" class="nav-sub">Task Success</a>
+      <a href="#ordering" class="nav-sub">Order-Invariance</a>
+      <a href="#robustness" class="nav-sub">Robustness (LIBERO-PRO)</a>
+      <a href="#quantized-text-actions" class="nav-sub">Quantized text-actions</a>
+      <a href="#rollouts" class="nav-sub">Example Rollouts</a>
+      <a href="#prior-work">Prior Work</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Deep Learning in Robotics · Spring 2026</div>
+    <h1>Replacing OpenVLA&rsquo;s binned action tokens with <em>text-action tokens</em>.</h1>
+    <div class="authors">
+      <span class="who">Jackson Earls</span>
+      <span class="who">Alireza Rahmansetayesh</span>
+      <span class="meta">· University of California, Irvine</span>
+    </div>
+  </div>
+</header>
+
+<!-- ================= OVERVIEW ================= -->
+<section id="overview">
+  <div class="wrap reveal">
+    <div class="sechead"><span class="num">00</span><h2>Overview</h2></div>
+    <p class="lead">We fine-tune OpenVLA-7B to emit each control command as a named decimal string &mdash; <code>dx=0.012&nbsp;…&nbsp;grip=-1</code> &mdash; over the full 7-DoF action space, and show the representation can be made invariant to the order its dimensions are written in.</p>
+    <p class="lead">Vision-language-action models like OpenVLA usually encode robot actions by repurposing rare vocabulary tokens as discrete bins. We instead represent each action directly as readable text in the model&rsquo;s native vocabulary, then study a property that only this representation makes possible: invariance to the ordering of the action dimensions.</p>
+    <p class="body">Mapping controls to arbitrary bin tokens misaligns robot fine-tuning with a VLM&rsquo;s pretraining distribution &mdash; the shared motivation behind <a href="https://arxiv.org/abs/2509.22195">VLM2VLA</a>, <a href="https://arxiv.org/abs/2602.10556">LAP</a>, and our work. VLM2VLA shows that language-shaped supervision lets LoRA adapt a VLM without destroying VQA; LAP shows the same representation can scale to foundation-model pre-training and embodiment transfer when paired with efficient execution.</p>
+    <div class="badges">
+      <div class="badge accent"><b>70%</b><span>permuted success · 5-trial</span></div>
+      <div class="badge"><b>75 / 77</b><span>distinct orderings at inference · T=1.0</span></div>
+      <div class="badge"><b>14&times;</b><span>finer than discrete bins</span></div>
+      <div class="badge"><b>7-DoF</b><span>incl. rotation</span></div>
+    </div>
+    <p class="body">The idea of representing actions as language was introduced by <strong>VLM2VLA</strong> (Hancock et al., 2025), which used positional, translation-only Python lists. Our contribution is a different instantiation built for continuous delta-pose control, plus a controlled study of its behaviour:</p>
+    <ul class="clean">
+      <li><b>Named <code>key=value</code> syntax.</b> Each dimension carries a semantic label drawn from the model&rsquo;s pretraining vocabulary, rather than relying on position to convey meaning.</li>
+      <li><b>Full 7-DoF including rotation.</b> Prior language-action work handled translation only; our format encodes roll, pitch, and yaw alongside translation and gripper.</li>
+      <li><b>Order-invariant training.</b> By permuting the dimension order during fine-tuning, we force the model to bind values to labels &mdash; a property positional formats cannot express.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= METHOD ================= -->
+<section id="method">
+  <div class="wrap reveal">
+    <div class="sechead"><span class="num">01</span><h2>Method</h2></div>
+    <p class="lead">We fine-tune OpenVLA-7B with 4-bit QLoRA (rank&nbsp;32, 10&nbsp;000 steps) on LIBERO-Spatial under three text-action token schemes. All three runs share the same base checkpoint, dataset, and training budget; they differ only in how each 7-DoF command is written as text.</p>
+
+    <div class="method-cases">
+      <div class="method-case">
+        <div class="case-head"><span class="case-num">I</span><h3>Fixed dimension order</h3></div>
+        <p class="body">The reference encoding: each action is a sequence of named decimal strings in a canonical order. Values are written to fixed precision and recovered losslessly by a regex parser &mdash; about 14&times; finer than OpenVLA&rsquo;s 256 discrete bins.</p>
+        <div class="example-panel">
+          <div class="cap">
+            <span>Example action string</span>
+            <span class="tag">fixed order</span>
+          </div>
+          <div class="example-row" aria-label="Canonical action string example">
+            <span class="pair"><span class="k">dx</span>=<span class="v">0.012</span></span>
+            <span class="pair"><span class="k">dy</span>=<span class="v">-0.005</span></span>
+            <span class="pair"><span class="k">dz</span>=<span class="v">0.034</span></span>
+            <span class="pair"><span class="k">droll</span>=<span class="v">0.001</span></span>
+            <span class="pair"><span class="k">dpitch</span>=<span class="v">0.002</span></span>
+            <span class="pair"><span class="k">dyaw</span>=<span class="v">0.005</span></span>
+            <span class="pair"><span class="k">grip</span>=<span class="v">-1</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-case">
+        <div class="case-head"><span class="case-num">II</span><h3>Permuted dimension order</h3></div>
+        <p class="body">Same decimal strings, but the <code>key=value</code> pairs appear in a fresh random order at every training step. Label masking is anchored per sample so it stays correct under variable token length. The model must bind each value to its label rather than its position.</p>
+        <div class="example-panel">
+          <div class="cap">
+            <span>Same action · re-ordered every beat</span>
+            <span class="tag live">training-time shuffle</span>
+          </div>
+          <div id="method-permuted-string" class="example-row"></div>
+        </div>
+      </div>
+
+      <div class="method-case">
+        <div class="case-head"><span class="case-num">III</span><h3>Naive quantization</h3></div>
+        <p class="body">Instead of raw decimals, each motion axis is snapped to a data-driven set of quantization levels (odd counts such as 7, 9, or 11, fitted on LIBERO-Spatial expert actions) and written as controlled vocabulary tokens: <code>zero</code>, or <code>positive</code>/<code>negative</code> plus a level index <code>q1&hellip;q11</code>. The gripper is written as <code>open</code> or <code>close</code>.</p>
+        <div class="example-panel">
+          <div class="cap">
+            <span>Example action string</span>
+            <span class="tag">11 quantization levels</span>
+          </div>
+          <div class="example-row" aria-label="Quantized action string example">
+            <span class="phrase"><span class="ax">x</span> <span class="mv">positive</span> <span class="tier">q3</span></span><span class="sep">,</span>
+            <span class="phrase"><span class="ax">y</span> <span class="mv">zero</span></span><span class="sep">,</span>
+            <span class="phrase"><span class="ax">z</span> <span class="mv">negative</span> <span class="tier">q1</span></span><span class="sep">,</span>
+            <span class="phrase"><span class="ax">roll</span> <span class="mv">zero</span></span><span class="sep">,</span>
+            <span class="phrase"><span class="ax">pitch</span> <span class="mv">positive</span> <span class="tier">q2</span></span><span class="sep">,</span>
+            <span class="phrase"><span class="ax">yaw</span> <span class="mv">zero</span></span><span class="sep">,</span>
+            <span class="phrase"><span class="ax">gripper</span> <span class="tier">open</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="body">Evaluation runs autoregressive generation on LIBERO-Spatial (10 tasks), parsing each generated string back into a 7-DoF command before stepping the simulator. Cases&nbsp;I and&nbsp;II are reported under <a href="#task-success">Results</a>; Case&nbsp;III is reported under <a href="#quantized-text-actions">Quantized text-actions</a>.</p>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="results">
+  <div class="wrap reveal">
+    <div class="sechead"><span class="num">02</span><h2>Results</h2></div>
+    <p class="lead">We evaluate the three text-action schemes on LIBERO-Spatial and LIBERO-PRO. Cases&nbsp;I and&nbsp;II (fixed and permuted decimal strings) appear in the first three subsections below; Case&nbsp;III (naive quantization) in the last.</p>
+
+    <div class="result-block" id="task-success">
+      <div class="subsechead"><h3>Task Success</h3></div>
+    <p class="lead">Success rate on LIBERO-Spatial. The published bf16 checkpoint is a fully-trained ceiling reference, not a like-for-like comparison; the meaningful contrast is between our two QLoRA models, which differ only in training-time dimension order.</p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Model</th><th>Training</th><th>Setting</th><th style="text-align:right">LIBERO-Spatial</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="method">OpenVLA discrete</td>
+            <td>bf16 · ~100k steps</td>
+            <td><span class="pill ceil">ceiling ref</span></td>
+            <td class="num">76.0%</td>
+          </tr>
+          <tr>
+            <td class="method">Language-action · canonical</td>
+            <td>QLoRA · 10k steps</td>
+            <td><span class="pill ours">ours</span></td>
+            <td class="num">60%</td>
+          </tr>
+          <tr>
+            <td class="method">Language-action · permuted</td>
+            <td>QLoRA · 10k steps</td>
+            <td><span class="pill ours">ours</span></td>
+            <td class="num">70.0%</td>
+          </tr>
+          <tr>
+            <td class="method">Language-action · permuted</td>
+            <td>QLoRA · 10k steps</td>
+            <td><span class="pill ours">ours</span> sampled T=1.0</td>
+            <td class="num">60%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="body">The headline finding is that permuted training reaches <strong>70%</strong> &mdash; within striking distance of the canonical model and the bf16 ceiling &mdash; despite the model never being shown a consistent dimension order. Learning the task at all under random orderings is non-obvious, and confirms the model relies on labels rather than position.</p>
+    </div>
+
+    <div class="result-block" id="ordering">
+      <div class="subsechead"><h3>Order-Invariance</h3></div>
+    <p class="lead">How many distinct dimension orderings does each model actually emit at inference? A positional model can only ever produce one. The permuted model&rsquo;s behaviour depends sharply on the decoding temperature.</p>
+    <div class="split">
+      <div class="ocard">
+        <div class="tag">Canonical · greedy</div>
+        <div class="big">1</div>
+        <div class="bigsub">ordering, every step</div>
+        <div class="samples">
+          <div class="o"><b>dx dy dz droll dpitch dyaw grip</b></div>
+          <div class="o">— always —</div>
+        </div>
+      </div>
+      <div class="ocard hot">
+        <div class="tag">Permuted · sampled T=1.0</div>
+        <div class="big">75</div>
+        <div class="bigsub">distinct orderings across 77 steps</div>
+        <div class="samples">
+          <div class="o">dz dpitch droll grip dyaw dx dy</div>
+          <div class="o">dyaw dx dz dpitch dy grip droll</div>
+          <div class="o">grip dpitch dy dz dyaw droll dx</div>
+          <div class="o">dx dyaw dpitch droll dy grip dz</div>
+        </div>
+      </div>
+    </div>
+    <p class="body">Under <strong>greedy</strong> decoding the permuted model produces <strong>19 distinct orderings across 106 steps</strong> with a soft preference for certain leading dimensions &mdash; an artifact of greedy decoding amplifying small logit gaps. Under <strong>temperature-1.0 sampling</strong> the distribution is revealed to be near-uniform: <strong>75 distinct orderings in 77 steps</strong>, almost never repeating. Every one parses to a valid action.</p>
+    <div class="callout">
+      <p>The model holds two epistemic stances in one output: genuinely uncertain about which dimension to name next (flat distribution), yet confident about each value (sharply peaked). Sampling scrambles the order but not the numbers &mdash; which is exactly why task performance can survive it.</p>
+    </div>
+    </div>
+
+    <div class="result-block" id="robustness">
+      <div class="subsechead"><h3>Robustness (LIBERO-PRO)</h3></div>
+    <p class="lead">LIBERO-PRO (Zhou et al., 2025) re-runs each LIBERO-Spatial task under controlled perturbations the policy never saw in training, to separate genuine task understanding from trajectory memorisation. We evaluate three of its perturbation axes across all ten spatial tasks, applied independently: <strong>position</strong> &mdash; the initial regions of objects are exchanged, with the instruction, target and goal held fixed; <strong>semantic</strong> &mdash; the instruction is replaced by a paraphrase, with the physical scene unchanged; and <strong>task</strong> &mdash; the target is switched to the other black bowl in the same scene, with the goal predicate updated to match. These runs use the <em>released LIBERO-PRO assets under our own reproducible evaluation protocol</em>; they are not exact reproductions of the paper&rsquo;s reported numbers (see note below).</p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2" style="vertical-align:bottom">Perturbation</th>
+            <th rowspan="2" style="vertical-align:bottom">What changes</th>
+            <th rowspan="2" style="vertical-align:bottom;text-align:right">OpenVLA<br>discrete</th>
+            <th rowspan="2" style="vertical-align:bottom;text-align:right">Canonical</th>
+            <th colspan="2" style="text-align:center;padding-bottom:6px;border-bottom:1px solid rgba(241,237,227,.22)">Permuted</th>
+          </tr>
+          <tr>
+            <th style="text-align:right;padding-top:6px">greedy</th>
+            <th style="text-align:right;padding-top:6px">T=1.0</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="method">&mdash; none</td>
+            <td>standard LIBERO-Spatial &mdash; reference</td>
+            <td class="num">76.0%</td>
+            <td class="num">60%</td>
+            <td class="num">70.0%</td>
+            <td class="num">60%</td>
+          </tr>
+          <tr>
+            <td class="method">Position</td>
+            <td>initial object regions exchanged; instruction, target &amp; goal unchanged</td>
+            <td class="num">0%</td>
+            <td class="num">0%</td>
+            <td class="num">0%</td>
+            <td class="num">0%</td>
+          </tr>
+          <tr>
+            <td class="method">Semantic</td>
+            <td>instruction paraphrased; scene, target &amp; goal unchanged</td>
+            <td class="num">56%</td>
+            <td class="num">56%</td>
+            <td class="num">72%</td>
+            <td class="num">76%</td>
+          </tr>
+          <tr>
+            <td class="method">Task</td>
+            <td>target switched to the other black bowl in the same scene; goal predicate updated to match</td>
+            <td class="num">40%</td>
+            <td class="num">8%</td>
+            <td class="num">22%</td>
+            <td class="num">18%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tnote">// Suites: <code>libero_spatial_swap</code> (position), <code>libero_spatial_lan</code> (semantic), <code>libero_spatial_task</code> (task, scored against the perturbed BDDL goal). Built on released LIBERO-PRO assets under our own evaluation protocol, so figures are not direct reproductions of the paper&rsquo;s reported numbers. <code>OpenVLA discrete</code> is the published OpenVLA checkpoint loaded in 4-bit &mdash; a fully-trained ceiling reference, not a like-for-like comparison with the QLoRA models. All figures use 5 trials per task.</p>
+    <p class="body">The benchmark&rsquo;s central finding is that VLA models scoring above 90% on vanilla LIBERO can collapse sharply once these perturbations are applied &mdash; evidence that high in-distribution scores often reflect memorised layouts and trajectories rather than grounded perception. Our question is narrower: <strong>does naming each action dimension, and training the model to bind values to those names regardless of order, change how the policy degrades under perturbation relative to a positional encoding?</strong> Position stresses memorised scene geometry, semantic stresses language grounding, and task stresses whether a new goal can be executed in a familiar scene &mdash; compositionally the hardest axis for current VLAs. The <strong>T=1.0</strong> column repeats the permuted evaluation under temperature-1.0 sampling rather than greedy decoding, testing whether order-invariant <em>sampling</em> &mdash; the dimension order scrambled at every step &mdash; holds up under perturbation as well as the deterministic greedy policy.</p>
+    </div>
+
+    <div class="result-block" id="quantized-text-actions">
+      <div class="subsechead"><h3>Quantized text-actions</h3></div>
+    <p class="lead">Case&nbsp;III replaces raw decimals with naive quantization. Each non-zero axis is written as a sign (<code>positive</code>/<code>negative</code>/<code>zero</code>) plus a quantization level <code>q1&hellip;qN</code> (with odd <code>N</code> swept over 7, 9, and 11); the gripper is <code>open</code>/<code>close</code>.</p>
+    <div class="callout">
+      <p><strong>Not a fine-tuned policy.</strong> The results below are an <em>oracle replay ceiling</em>: we take LIBERO-Spatial expert demonstrations, quantize each action through the naive codec, and roll the quantized commands out in sim. No VLA is involved &mdash; the question is only <strong>what happens if we quantize expert actions?</strong> Any learned policy can at best approach these numbers; it cannot exceed them without better actions than the expert.</p>
+    </div>
+    <div class="example-panel" style="margin-top:14px">
+      <div class="cap">
+        <span>Example action string</span>
+        <span class="tag">11 quantization levels</span>
+      </div>
+      <div class="example-row" aria-label="Quantized action string example">
+        <span class="phrase"><span class="ax">x</span> <span class="mv">positive</span> <span class="tier">q3</span></span><span class="sep">,</span>
+        <span class="phrase"><span class="ax">y</span> <span class="mv">zero</span></span><span class="sep">,</span>
+        <span class="phrase"><span class="ax">z</span> <span class="mv">negative</span> <span class="tier">q1</span></span><span class="sep">,</span>
+        <span class="phrase"><span class="ax">roll</span> <span class="mv">zero</span></span><span class="sep">,</span>
+        <span class="phrase"><span class="ax">pitch</span> <span class="mv">positive</span> <span class="tier">q2</span></span><span class="sep">,</span>
+        <span class="phrase"><span class="ax">yaw</span> <span class="mv">zero</span></span><span class="sep">,</span>
+        <span class="phrase"><span class="ax">gripper</span> <span class="tier">open</span></span>
+      </div>
+    </div>
+    <div class="barpanel">
+      <div class="head">
+        <div class="t">Quantization ceiling vs. number of levels <span class="pill ceil" style="font-size:9px;margin-left:6px">no VLA</span></div>
+        <div class="d">Success when expert actions alone are naive-quantized and replayed. More quantization levels recover more of the expert rate.</div>
+      </div>
+      <div class="barchart" role="img" aria-label="Oracle replay success: expert 93.2%, 7 quantization levels 35.2%, 9 levels 58.6%, 11 levels 71.4%">
+        <div class="barchart-y" aria-hidden="true"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
+        <div class="barchart-main">
+            <div class="barchart-bars">
+              <div class="barchol">
+                <div class="barval">93.2%</div>
+                <div class="bartrack"><div class="bar ceil" style="height:93.2%"></div></div>
+                <div class="barlab">expert</div>
+              </div>
+              <div class="barchol">
+                <div class="barval">35.2%</div>
+                <div class="bartrack"><div class="bar q7" style="height:35.2%"></div></div>
+                <div class="barlab"># of quantization levels=7</div>
+              </div>
+              <div class="barchol">
+                <div class="barval">58.6%</div>
+                <div class="bartrack"><div class="bar q9" style="height:58.6%"></div></div>
+                <div class="barlab"># of quantization levels=9</div>
+              </div>
+              <div class="barchol">
+                <div class="barval">71.4%</div>
+                <div class="bartrack"><div class="bar q11" style="height:71.4%"></div></div>
+                <div class="barlab"># of quantization levels=11</div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="barlegend">
+        <span><i class="ceil"></i> expert replay (continuous actions)</span>
+        <span><i class="q"></i> quantized expert replay (cap)</span>
+      </div>
+    </div>
+    <p class="body">Separately, OpenVLA-BC fine-tuning with 11 quantization levels is underway. That will measure how close a learned policy can get to the 71.4% cap above; training curves and policy sim success will be added once the sweep completes.</p>
+    </div>
+
+    <div class="result-block" id="rollouts">
+      <div class="subsechead"><h3>Example Rollouts</h3></div>
+    <p class="lead">Policy rollouts on LIBERO-Spatial with the generated action string overlaid on every frame. Drop your <code>.mp4</code> clips into a <code>videos/</code> folder beside this page &mdash; the filenames below are already wired in. Optional <code>.jpg</code> posters with the same names show a still before playback.</p>
+    <div class="vgrid">
+      <div class="vid">
+        <video controls preload="metadata" playsinline poster="videos/01_canonical.jpg">
+          <source src="videos/01_canonical.mp4" type="video/mp4">
+        </video>
+        <div class="cap"><div class="t">Pick &amp; place &mdash; canonical</div><div class="d">Fixed-order model completing a spatial task.</div></div>
+      </div>
+      <div class="vid">
+        <video controls preload="metadata" playsinline poster="videos/02_permuted.jpg">
+          <source src="videos/02_permuted.mp4" type="video/mp4">
+        </video>
+        <div class="cap"><div class="t">Pick &amp; place &mdash; permuted</div><div class="d">Same task, shuffled-order model. Note the changing label order in the overlay.</div></div>
+      </div>
+      <div class="vid">
+        <video controls preload="metadata" playsinline poster="videos/03_sampled.jpg">
+          <source src="videos/03_sampled.mp4" type="video/mp4">
+        </video>
+        <div class="cap"><div class="t">Sampled decoding</div><div class="d">Permuted model at temperature 1.0 &mdash; orderings vary frame to frame.</div></div>
+      </div>
+      <div class="vid">
+        <video controls preload="metadata" playsinline poster="videos/04_failure.jpg">
+          <source src="videos/04_failure.mp4" type="video/mp4">
+        </video>
+        <div class="cap"><div class="t">Characteristic failure</div><div class="d">Early gripper close → compounding drift, the typical behaviour-cloning failure.</div></div>
+      </div>
+    </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= PRIOR WORK ================= -->
+<section id="prior-work" style="border-bottom:none">
+  <div class="wrap reveal">
+    <div class="sechead"><span class="num">03</span><h2>Comparison to Previous Work</h2></div>
+    <p class="lead">Our project sits in the same line of work as recent papers that replace OpenVLA-style bin tokens with readable text. We build directly on the <strong>actions-as-language</strong> idea, but target a different base model, action grammar, and set of scientific questions.</p>
+
+    <div class="paper-grid">
+      <div class="paper-card">
+        <div class="cite">Hancock et al., 2025 · arXiv:2509.22195</div>
+        <h3>VLM2VLA</h3>
+        <p><a href="https://arxiv.org/abs/2509.22195">Actions as Language</a> fine-tunes a VLM with LoRA by rewriting teleop trajectories into natural language. Low-level actions are nested text lists over <strong>translation only</strong>; inference is a three-stage hierarchy (subtask &rarr; motion plan &rarr; action chunk). The main goal is to <strong>avoid catastrophic forgetting</strong> and preserve VQA while adding control on Bridge V2.</p>
+      </div>
+      <div class="paper-card">
+        <div class="cite">Zha et al., 2026 · arXiv:2602.10556</div>
+        <h3>LAP</h3>
+        <p><a href="https://arxiv.org/abs/2602.10556">Language-Action Pre-Training</a> scales the same core idea to large multi-embodiment pre-training. Actions become templated clauses (<code>move … cm; tilt … deg; …</code>) parsed automatically from continuous control. LAP-3B pairs a language-action VLM with a <strong>diffusion action expert</strong> for fast execution and reports strong <strong>zero-shot cross-embodiment</strong> transfer.</p>
+      </div>
+    </div>
+
+    <div class="tablewrap cmp-table" style="margin-top:32px">
+      <table>
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>VLM2VLA</th>
+            <th>LAP</th>
+            <th>This project</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Base model</td>
+            <td>Gemma-3-12B</td>
+            <td>VLM backbone + action expert</td>
+            <td>OpenVLA-7B</td>
+          </tr>
+          <tr>
+            <td>What replaces bin tokens?</td>
+            <td>Nested language action lists</td>
+            <td>Templated language-action clauses</td>
+            <td><code>key=value</code> strings or quantization-level tokens</td>
+          </tr>
+          <tr>
+            <td>Action DoFs</td>
+            <td>Translation only (low-level)</td>
+            <td>Translation + rotation + gripper</td>
+            <td>Full 7-DoF delta pose + gripper</td>
+          </tr>
+          <tr>
+            <td>Dimension labels</td>
+            <td>Positional list structure</td>
+            <td>Fixed clause template</td>
+            <td>Explicit names (<code>dx=</code>, <code>roll</code>, <code>q3</code>, …)</td>
+          </tr>
+          <tr>
+            <td>Order invariance</td>
+            <td>Not studied</td>
+            <td>Not studied</td>
+            <td>Core experiment (permuted training)</td>
+          </tr>
+          <tr>
+            <td>Quantized text actions</td>
+            <td>No</td>
+            <td>Integer cm/deg discretization</td>
+            <td>Naive 11-level quantization (Case III)</td>
+          </tr>
+          <tr>
+            <td>Training setup</td>
+            <td>LoRA · Bridge V2</td>
+            <td>Large-scale pre-training</td>
+            <td>4-bit QLoRA · 10k steps · LIBERO-Spatial</td>
+          </tr>
+          <tr>
+            <td>Primary evaluation focus</td>
+            <td>VQA retention · OOD manipulation</td>
+            <td>Zero-shot new embodiments</td>
+            <td>Task success · order invariance · LIBERO-PRO robustness</td>
+          </tr>
+          <tr>
+            <td>Inference</td>
+            <td>Pure autoregressive text</td>
+            <td>Hybrid (language + diffusion expert)</td>
+            <td>Autoregressive text &rarr; regex / quantization parser</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="body"><strong>Where we differ.</strong> We start from <strong>OpenVLA</strong> rather than Gemma or a custom LAP stack, and ask a complementary question: once actions are text, can the model bind values to <em>named</em> dimensions rather than to string position? Our <code>dx=0.012&nbsp;…</code> format is finer-grained and explicitly labeled, full rotation is included, and permuted training makes order invariance measurable (e.g. 75 distinct orderings in 77 sampled steps). Case&nbsp;III adds <strong>naive quantization</strong> &mdash; text-action tokens at discrete quantization levels (<code>q1&hellip;qN</code>) distinct from LAP&rsquo;s centimeter/degree templates or VLM2VLA&rsquo;s nested lists.</p>
+    <p class="body"><strong>Scope.</strong> VLM2VLA and LAP target broader generalization (VQA preservation, cross-embodiment pre-training). Our course project is narrower but deeper on representation design: three controlled encodings on one benchmark. We view our work as an OpenVLA-centric extension of the actions-as-text paradigm, with order invariance and quantization as the novel axes.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="big">actions<span style="color:var(--accent)">.</span>as<span style="color:var(--accent)">.</span>text</div>
+      <div class="meta" style="margin-top:8px">Continuous Language-Action Encoding for OpenVLA</div>
+    </div>
+    <div class="meta">
+      Jackson Earls · Alireza Rahmansetayesh<br>
+      Deep Learning in Robotics · UC Irvine · Spring 2026<br>
+      Built on OpenVLA-7B · LIBERO-Spatial · prior work: <a href="https://arxiv.org/abs/2509.22195">VLM2VLA</a>, <a href="https://arxiv.org/abs/2602.10556">LAP</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Method motif: cycle the SAME action through different orderings.
+  const action = {
+    dx:"0.012", dy:"-0.005", dz:"0.034",
+    droll:"0.001", dpitch:"0.002", dyaw:"0.005", grip:"-1"
+  };
+  const keys = Object.keys(action);
+
+  function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function renderPairs(target, order){
+    target.innerHTML = order.map(k =>
+      `<span class="pair"><span class="k">${k}</span>=<span class="v">${action[k]}</span></span>`
+    ).join('');
+  }
+  function initPermutedMotif(targetId, intervalMs){
+    const target = document.getElementById(targetId);
+    if(!target) return;
+    renderPairs(target, keys);
+    target.style.transition = 'opacity .24s';
+    let last = keys.join('');
+    setInterval(()=>{
+      let o; do{ o = shuffle(keys); }while(o.join()===last);
+      last = o.join();
+      target.style.opacity = .25;
+      setTimeout(()=>{ renderPairs(target, o); target.style.opacity = 1; }, 240);
+    }, intervalMs);
+  }
+  initPermutedMotif('method-permuted-string', 1800);
+
+  // Scroll reveals
+  const io = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // Safety net: if anything is still hidden a moment after full load
+  // (e.g. observer never fired), reveal it so content can't get stuck invisible.
+  window.addEventListener('load', ()=>setTimeout(()=>{
+    document.querySelectorAll('.reveal:not(.in)').forEach(el=>{
+      if(el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in');
+    });
+  }, 800));
+</script>
+</body>
+</html>
