@@ -74,7 +74,7 @@
   }
   h1 em{font-style:normal;color:var(--accent)}
   .sub{
-    margin-top:26px;max-width:60ch;font-size:18px;color:var(--ink-soft);
+    margin-top:26px;max-width:60ch;font-size:16px;color:var(--ink-soft);
     opacity:0;animation:rise .8s .2s forwards;
   }
   .authors{
@@ -107,14 +107,19 @@
   .paper-card{border:1px solid var(--line-strong);border-radius:4px;padding:22px;background:var(--paper-2)}
   .paper-card .cite{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:8px}
   .paper-card h3{font-family:var(--mono);font-weight:600;font-size:16px;letter-spacing:-.02em;margin-bottom:10px}
-  .paper-card p{font-size:14.5px;color:var(--ink-soft);line-height:1.6}
+  .paper-card p{font-size:16px;color:var(--ink-soft);line-height:1.6}
   .paper-card a{color:var(--accent-deep);text-decoration:none}
   .paper-card a:hover{text-decoration:underline}
   .cmp-table td:first-child{font-weight:500;color:var(--ink)}
-  .lead{font-size:18.5px;max-width:68ch;color:var(--ink);font-weight:300}
-  .lead+.lead{margin-top:18px}
-  p.body{font-size:16px;max-width:70ch;color:var(--ink-soft);margin-top:16px}
-  .body strong{color:var(--ink);font-weight:500}
+  .lead,p.body{
+    font-size:16px;max-width:70ch;color:var(--ink-soft);font-weight:300;line-height:1.6;
+  }
+  p.body{margin-top:16px}
+  .lead{margin-top:0}
+  .lead+.lead,p.body+p.body,.lead+p.body,p.body+.lead{margin-top:16px}
+  #overview p.body:first-of-type,.sechead+.lead,.result-block>.lead:first-of-type{margin-top:0}
+  #task-success .tablewrap+p.lead{margin-top:24px}
+  .lead strong,.body strong{color:var(--ink);font-weight:500}
   code,.kbd{font-family:var(--mono);font-size:.92em;background:var(--paper-2);border:1px solid var(--line);border-radius:3px;padding:1px 6px}
 
   /* method cards */
@@ -123,7 +128,7 @@
   .card{border:1px solid var(--line-strong);border-radius:4px;padding:22px;background:var(--paper-2)}
   .card .ct{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:11px}
   .card h3{font-family:var(--mono);font-weight:600;font-size:17px;letter-spacing:-.02em;margin-bottom:9px}
-  .card p{font-size:14.5px;color:var(--ink-soft)}
+  .card p{font-size:16px;color:var(--ink-soft)}
 
   /* method cases */
   .method-cases{display:flex;flex-direction:column;gap:28px;margin-top:28px}
@@ -161,7 +166,7 @@
 
   /* results table */
   .tablewrap{margin-top:12px;border:1px solid var(--line-strong);border-radius:4px;overflow:hidden}
-  table{width:100%;border-collapse:collapse;font-size:15px}
+  table{width:100%;border-collapse:collapse;font-size:16px}
   thead th{
     font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
     text-align:left;padding:14px 18px;background:var(--ink);color:var(--paper);font-weight:500;
@@ -206,7 +211,7 @@
   .vid .frame .ph{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
   .vid .cap{padding:14px 16px;border-top:1px solid var(--line)}
   .vid .cap .t{font-family:var(--mono);font-weight:600;font-size:13.5px;letter-spacing:-.01em}
-  .vid .cap .d{font-size:13px;color:var(--ink-soft);margin-top:3px}
+  .vid .cap .d{font-size:16px;color:var(--ink-soft);margin-top:3px}
   .vid video{width:100%;display:block;aspect-ratio:1/1;object-fit:cover;background:#1B1A14}
 
   /* native bar chart */
@@ -237,7 +242,12 @@
   .barchol .bar.q7{background:rgba(200,67,27,.42);border:1px solid rgba(200,67,27,.55)}
   .barchol .bar.q9{background:rgba(200,67,27,.68);border:1px solid rgba(200,67,27,.82)}
   .barchol .bar.q11{background:var(--accent);border:1px solid var(--accent-deep)}
+  .barchol .bar.permuted{background:var(--accent);border:1px solid var(--accent-deep)}
+  .barchol .bar.canonical{background:rgba(200,67,27,.55);border:1px solid rgba(200,67,27,.75)}
   .barchol .barlab{font-family:var(--mono);font-size:10px;color:var(--ink-soft);text-align:center;line-height:1.3;flex-shrink:0;max-width:120px}
+  .barchol .barlab .barsub{display:block;font-size:9px;color:var(--ink-soft);margin-top:3px;line-height:1.35;font-weight:400}
+  .barpanel.task-success .barchol{max-width:148px}
+  .barpanel.task-success .barchol .barlab{font-size:9.5px;max-width:140px}
   .barlegend{
     margin-top:16px;display:flex;flex-wrap:wrap;gap:14px 22px;font-family:var(--mono);font-size:11px;color:var(--ink-soft);
   }
@@ -267,11 +277,8 @@
   .tlegend span{display:flex;align-items:center;gap:7px}
   .tlegend i{width:18px;height:3px;display:inline-block}
 
-  .callout{border-left:3px solid var(--accent);padding:6px 0 6px 22px;margin-top:24px;max-width:70ch}
-  .callout p{font-size:15.5px;color:var(--ink);font-style:italic}
-
   ul.clean{list-style:none;margin-top:16px;max-width:70ch}
-  ul.clean li{padding:11px 0 11px 28px;border-bottom:1px solid var(--line);position:relative;font-size:15.5px;color:var(--ink-soft)}
+  ul.clean li{padding:11px 0 11px 28px;border-bottom:1px solid var(--line);position:relative;font-size:16px;color:var(--ink-soft)}
   ul.clean li::before{content:"→";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}
   ul.clean li b{color:var(--ink);font-weight:500}
 
@@ -299,7 +306,6 @@
       <a href="#results">Results</a>
       <span class="nav-break"></span>
       <a href="#task-success" class="nav-sub">Task Success</a>
-      <a href="#ordering" class="nav-sub">Order-Invariance</a>
       <a href="#robustness" class="nav-sub">Robustness (LIBERO-PRO)</a>
       <a href="#quantized-text-actions" class="nav-sub">Quantized text-actions</a>
       <a href="#rollouts" class="nav-sub">Example Rollouts</a>
@@ -324,21 +330,14 @@
 <section id="overview">
   <div class="wrap reveal">
     <div class="sechead"><span class="num">00</span><h2>Overview</h2></div>
-    <p class="lead">We fine-tune OpenVLA-7B to emit each control command as a named decimal string &mdash; <code>dx=0.012&nbsp;…&nbsp;grip=-1</code> &mdash; over the full 7-DoF action space, and show the representation can be made invariant to the order its dimensions are written in.</p>
-    <p class="lead">Vision-language-action models like OpenVLA usually encode robot actions by repurposing rare vocabulary tokens as discrete bins. We instead represent each action directly as readable text in the model&rsquo;s native vocabulary, then study a property that only this representation makes possible: invariance to the ordering of the action dimensions.</p>
-    <p class="body">Mapping controls to arbitrary bin tokens misaligns robot fine-tuning with a VLM&rsquo;s pretraining distribution &mdash; the shared motivation behind <a href="https://arxiv.org/abs/2509.22195">VLM2VLA</a>, <a href="https://arxiv.org/abs/2602.10556">LAP</a>, and our work. VLM2VLA shows that language-shaped supervision lets LoRA adapt a VLM without destroying VQA; LAP shows the same representation can scale to foundation-model pre-training and embodiment transfer when paired with efficient execution.</p>
-    <div class="badges">
-      <div class="badge accent"><b>70%</b><span>permuted success · 5-trial</span></div>
-      <div class="badge"><b>75 / 77</b><span>distinct orderings at inference · T=1.0</span></div>
-      <div class="badge"><b>14&times;</b><span>finer than discrete bins</span></div>
-      <div class="badge"><b>7-DoF</b><span>incl. rotation</span></div>
-    </div>
-    <p class="body">The idea of representing actions as language was introduced by <strong>VLM2VLA</strong> (Hancock et al., 2025), which used positional, translation-only Python lists. Our contribution is a different instantiation built for continuous delta-pose control, plus a controlled study of its behaviour:</p>
-    <ul class="clean">
-      <li><b>Named <code>key=value</code> syntax.</b> Each dimension carries a semantic label drawn from the model&rsquo;s pretraining vocabulary, rather than relying on position to convey meaning.</li>
-      <li><b>Full 7-DoF including rotation.</b> Prior language-action work handled translation only; our format encodes roll, pitch, and yaw alongside translation and gripper.</li>
-      <li><b>Order-invariant training.</b> By permuting the dimension order during fine-tuning, we force the model to bind values to labels &mdash; a property positional formats cannot express.</li>
-    </ul>
+
+    <p class="body">OpenVLA encodes actions as discrete bin tokens carved out of the vocabulary. That representation is awkward for a VLM: fine-tuning pushes the model away from the text it was pretrained on. Recent work &mdash; <a href="https://arxiv.org/abs/2509.22195">VLM2VLA</a> and <a href="https://arxiv.org/abs/2602.10556">LAP</a> &mdash; instead writes actions as readable text. We adopt that idea and name each control dimension explicitly, e.g. <code>dx=0.012 dy=-0.005 dz=0.034 droll=0.001 dpitch=0.002 dyaw=0.005 grip=-1</code>.</p>
+
+    <p class="body">Text actions also make a sharper scientific question possible. What if we shuffle the order of those fields at every training step? The same command could be written <code>dyaw=0.005 grip=-1 dz=0.034 dx=0.012 dpitch=0.002 dy=-0.005 droll=0.001</code> instead of always following a fixed template. Is the model only learning sequence pattern completion &mdash; predicting the next token because <code>dx</code> usually comes first &mdash; or does it actually know what <code>dx</code>, <code>dy</code>, <code>dz</code>, and the rest mean well enough to put the right value next to each label no matter where it appears? Separating positional memorisation from label binding is the core motivation behind our permuted training setup.</p>
+
+    <p class="body">We also tried replacing decimals with naive quantization &mdash; writing each axis as a sign plus a quantized level token rather than a full decimal string, e.g. <code>x positive q3, y zero, z negative q1, roll zero, pitch positive q2, yaw zero, gripper open</code>. That line of work did not work well. Even before any model training, quantizing and replaying expert actions in sim already hurts: continuous expert replay succeeds at 93.2%, but the same expert actions after quantization succeed less (71.4% with 11 quantization levels), mainly due to compounding error and trajectory shift. Fine-tuning OpenVLA to emit the quantized grammar reached only <strong>15%</strong> task success &mdash; a negative result we report for completeness, not as a contribution.</p>
+
+    <p class="body"><strong>Results.</strong> On LIBERO-Spatial the permuted model reaches <strong>70%</strong> success vs <strong>60%</strong> for the fixed-order model, and at inference it generates action strings with varying dimension order. We also run both models under LIBERO-PRO perturbations to see whether label binding changes how performance degrades when scenes, instructions, or goals shift.</p>
   </div>
 </section>
 
@@ -371,7 +370,7 @@
 
       <div class="method-case">
         <div class="case-head"><span class="case-num">II</span><h3>Permuted dimension order</h3></div>
-        <p class="body">Same decimal strings, but the <code>key=value</code> pairs appear in a fresh random order at every training step. Label masking is anchored per sample so it stays correct under variable token length. The model must bind each value to its label rather than its position.</p>
+        <p class="body">Same decimal strings, but the <code>key=value</code> pairs appear in a fresh random order at every training step. The model must bind each value to its label rather than its position.</p>
         <div class="example-panel">
           <div class="cap">
             <span>Same action · re-ordered every beat</span>
@@ -402,7 +401,6 @@
       </div>
     </div>
 
-    <p class="body">Evaluation runs autoregressive generation on LIBERO-Spatial (10 tasks), parsing each generated string back into a 7-DoF command before stepping the simulator. Cases&nbsp;I and&nbsp;II are reported under <a href="#task-success">Results</a>; Case&nbsp;III is reported under <a href="#quantized-text-actions">Quantized text-actions</a>.</p>
   </div>
 </section>
 
@@ -410,11 +408,11 @@
 <section id="results">
   <div class="wrap reveal">
     <div class="sechead"><span class="num">02</span><h2>Results</h2></div>
-    <p class="lead">We evaluate the three text-action schemes on LIBERO-Spatial and LIBERO-PRO. Cases&nbsp;I and&nbsp;II (fixed and permuted decimal strings) appear in the first three subsections below; Case&nbsp;III (naive quantization) in the last.</p>
+    <p class="lead">We evaluate the three text-action schemes on LIBERO-Spatial and LIBERO-PRO. Cases&nbsp;I and&nbsp;II are reported under Task Success and Robustness; Case&nbsp;III (naive quantization) under Quantized text-actions.</p>
 
     <div class="result-block" id="task-success">
       <div class="subsechead"><h3>Task Success</h3></div>
-    <p class="lead">Success rate on LIBERO-Spatial. The published bf16 checkpoint is a fully-trained ceiling reference, not a like-for-like comparison; the meaningful contrast is between our two QLoRA models, which differ only in training-time dimension order.</p>
+    <p class="lead">Success rate on LIBERO-Spatial. OpenVLA with binned action tokens is shown as a ceiling reference; the meaningful contrast is between our two QLoRA models, which differ only in training-time dimension order.</p>
     <div class="tablewrap">
       <table>
         <thead>
@@ -422,10 +420,10 @@
         </thead>
         <tbody>
           <tr>
-            <td class="method">OpenVLA discrete</td>
+            <td class="method">OpenVLA (binned action tokens)</td>
             <td>bf16 · ~100k steps</td>
             <td><span class="pill ceil">ceiling ref</span></td>
-            <td class="num">76.0%</td>
+            <td class="num">93.2%</td>
           </tr>
           <tr>
             <td class="method">Language-action · canonical</td>
@@ -437,49 +435,13 @@
             <td class="method">Language-action · permuted</td>
             <td>QLoRA · 10k steps</td>
             <td><span class="pill ours">ours</span></td>
-            <td class="num">70.0%</td>
-          </tr>
-          <tr>
-            <td class="method">Language-action · permuted</td>
-            <td>QLoRA · 10k steps</td>
-            <td><span class="pill ours">ours</span> sampled T=1.0</td>
-            <td class="num">60%</td>
+            <td class="num">70%</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p class="body">The headline finding is that permuted training reaches <strong>70%</strong> &mdash; within striking distance of the canonical model and the bf16 ceiling &mdash; despite the model never being shown a consistent dimension order. Learning the task at all under random orderings is non-obvious, and confirms the model relies on labels rather than position.</p>
-    </div>
-
-    <div class="result-block" id="ordering">
-      <div class="subsechead"><h3>Order-Invariance</h3></div>
-    <p class="lead">How many distinct dimension orderings does each model actually emit at inference? A positional model can only ever produce one. The permuted model&rsquo;s behaviour depends sharply on the decoding temperature.</p>
-    <div class="split">
-      <div class="ocard">
-        <div class="tag">Canonical · greedy</div>
-        <div class="big">1</div>
-        <div class="bigsub">ordering, every step</div>
-        <div class="samples">
-          <div class="o"><b>dx dy dz droll dpitch dyaw grip</b></div>
-          <div class="o">— always —</div>
-        </div>
-      </div>
-      <div class="ocard hot">
-        <div class="tag">Permuted · sampled T=1.0</div>
-        <div class="big">75</div>
-        <div class="bigsub">distinct orderings across 77 steps</div>
-        <div class="samples">
-          <div class="o">dz dpitch droll grip dyaw dx dy</div>
-          <div class="o">dyaw dx dz dpitch dy grip droll</div>
-          <div class="o">grip dpitch dy dz dyaw droll dx</div>
-          <div class="o">dx dyaw dpitch droll dy grip dz</div>
-        </div>
-      </div>
-    </div>
-    <p class="body">Under <strong>greedy</strong> decoding the permuted model produces <strong>19 distinct orderings across 106 steps</strong> with a soft preference for certain leading dimensions &mdash; an artifact of greedy decoding amplifying small logit gaps. Under <strong>temperature-1.0 sampling</strong> the distribution is revealed to be near-uniform: <strong>75 distinct orderings in 77 steps</strong>, almost never repeating. Every one parses to a valid action.</p>
-    <div class="callout">
-      <p>The model holds two epistemic stances in one output: genuinely uncertain about which dimension to name next (flat distribution), yet confident about each value (sharply peaked). Sampling scrambles the order but not the numbers &mdash; which is exactly why task performance can survive it.</p>
-    </div>
+    <p class="lead">The headline finding is that permuted training reaches <strong>70%</strong> vs <strong>60%</strong> for canonical &mdash; despite the model never being shown a consistent dimension order at training time. That confirms the model binds values to labels rather than position.</p>
+    <p class="lead">At inference the canonical model always writes dimensions in the same order; the permuted model emits <code>key=value</code> pairs in different orders from step to step, and each generated string still parses to a valid 7-DoF action.</p>
     </div>
 
     <div class="result-block" id="robustness">
@@ -543,9 +505,7 @@
     <div class="result-block" id="quantized-text-actions">
       <div class="subsechead"><h3>Quantized text-actions</h3></div>
     <p class="lead">Case&nbsp;III replaces raw decimals with naive quantization. Each non-zero axis is written as a sign (<code>positive</code>/<code>negative</code>/<code>zero</code>) plus a quantization level <code>q1&hellip;qN</code> (with odd <code>N</code> swept over 7, 9, and 11); the gripper is <code>open</code>/<code>close</code>.</p>
-    <div class="callout">
-      <p><strong>Not a fine-tuned policy.</strong> The results below are an <em>oracle replay ceiling</em>: we take LIBERO-Spatial expert demonstrations, quantize each action through the naive codec, and roll the quantized commands out in sim. No VLA is involved &mdash; the question is only <strong>what happens if we quantize expert actions?</strong> Any learned policy can at best approach these numbers; it cannot exceed them without better actions than the expert.</p>
-    </div>
+    <p class="body"><strong>Not a fine-tuned policy.</strong> The results below are an <em>oracle replay ceiling</em>: we take LIBERO-Spatial expert demonstrations, quantize each action through the naive codec, and roll the quantized commands out in sim. No VLA is involved &mdash; the question is only <strong>what happens if we quantize expert actions?</strong> Any learned policy can at best approach these numbers; it cannot exceed them without better actions than the expert.</p>
     <div class="example-panel" style="margin-top:14px">
       <div class="cap">
         <span>Example action string</span>
@@ -561,44 +521,44 @@
         <span class="phrase"><span class="ax">gripper</span> <span class="tier">open</span></span>
       </div>
     </div>
-    <div class="barpanel">
-      <div class="head">
-        <div class="t">Quantization ceiling vs. number of levels <span class="pill ceil" style="font-size:9px;margin-left:6px">no VLA</span></div>
-        <div class="d">Success when expert actions alone are naive-quantized and replayed. More quantization levels recover more of the expert rate.</div>
-      </div>
-      <div class="barchart" role="img" aria-label="Oracle replay success: expert 93.2%, 7 quantization levels 35.2%, 9 levels 58.6%, 11 levels 71.4%">
-        <div class="barchart-y" aria-hidden="true"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
-        <div class="barchart-main">
-            <div class="barchart-bars">
-              <div class="barchol">
-                <div class="barval">93.2%</div>
-                <div class="bartrack"><div class="bar ceil" style="height:93.2%"></div></div>
-                <div class="barlab">expert</div>
-              </div>
-              <div class="barchol">
-                <div class="barval">35.2%</div>
-                <div class="bartrack"><div class="bar q7" style="height:35.2%"></div></div>
-                <div class="barlab"># of quantization levels=7</div>
-              </div>
-              <div class="barchol">
-                <div class="barval">58.6%</div>
-                <div class="bartrack"><div class="bar q9" style="height:58.6%"></div></div>
-                <div class="barlab"># of quantization levels=9</div>
-              </div>
-              <div class="barchol">
-                <div class="barval">71.4%</div>
-                <div class="bartrack"><div class="bar q11" style="height:71.4%"></div></div>
-                <div class="barlab"># of quantization levels=11</div>
-              </div>
-            </div>
-        </div>
-      </div>
-      <div class="barlegend">
-        <span><i class="ceil"></i> expert replay (continuous actions)</span>
-        <span><i class="q"></i> quantized expert replay (cap)</span>
-      </div>
+    <div class="tablewrap" style="margin-top:24px">
+      <table>
+        <thead>
+          <tr>
+            <th># of quantization levels</th>
+            <th style="text-align:right">Expert replay</th>
+            <th style="text-align:right">Quantized expert <span class="pill ceil" style="font-size:9px;vertical-align:middle">cap · no VLA</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="method">7</td>
+            <td class="num">93.2%</td>
+            <td class="num">35.2%</td>
+          </tr>
+          <tr>
+            <td class="method">9</td>
+            <td class="num">93.2%</td>
+            <td class="num">58.6%</td>
+          </tr>
+          <tr>
+            <td class="method">11</td>
+            <td class="num">93.2%</td>
+            <td class="num">71.4%</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <p class="body">Separately, OpenVLA-BC fine-tuning with 11 quantization levels is underway. That will measure how close a learned policy can get to the 71.4% cap above; training curves and policy sim success will be added once the sweep completes.</p>
+    <p class="tnote">// Oracle replay: expert demos quantized and rolled out in sim with no model inference. Expert replay reruns continuous actions; quantized expert is the discretisation ceiling for that number of levels.</p>
+    <p class="body">OpenVLA-BC fine-tuning on the 11-level grammar reached <strong>15%</strong> sim success &mdash; well below the 71.4% quantized-expert ceiling above. Training curves are in the results folder; we treat this as a negative result.</p>
+    <p class="body"><strong>Why naive quantization is hard, and what might help.</strong> Per-step discretization throws away sub-level detail and compounds error over long horizons: each snapped command is locally reasonable but the trajectory drifts. A natural fix is <em>trajectory-aware quantization</em>: at each step, use a fitted pose-delta model to pick the discrete token whose predicted motion best reduces error toward a lookahead target on the expert path, rather than independently rounding the expert&rsquo;s continuous action.</p>
+    <p class="body"><strong>Other schemes we tried.</strong> We explored several alternatives beyond naive quantization.</p>
+    <ul class="clean">
+      <li><b>Trajectory-aware <code>n_q</code> replay</b> &mdash; closed-loop selection over the same <code>q1&hellip;q11</code> lattice with proprio-conditioned pose-delta models and 4-step lookahead. On 500 LIBERO-Spatial demos this reached <strong>63.6%</strong> success &mdash; below the <strong>71.4%</strong> naive per-step ceiling, so lookahead selection on the fine lattice did not recover the expert trajectory.</li>
+      <li><b>Magnitude tokens</b> &mdash; a coarser grammar with <code>positive</code>/<code>negative</code>/<code>zero</code> plus <code>small</code>/<code>medium</code>/<code>large</code> per axis (e.g. <code>x positive medium, y zero, &hellip;</code>) instead of indexed tiers. Instantaneous round-trip replay succeeds on only <strong>29%</strong> of demos; pairing it with trajectory-aware control raises that to <strong>83%</strong>.</li>
+      <li><b>Fixed staged control</b> &mdash; a scripted course-correction schedule that repeats large, then medium, then small corrective commands before advancing along the expert timeline. Oracle replay with this controller reaches <strong>92%</strong>, and we built a phase-conditioned BC dataset (&gt;300k rows) where each prompt includes the active stage. OpenVLA fine-tuning on that grammar produced valid staged strings at every step, but closed-loop sim evaluation still scored <strong>0%</strong> task success.</li>
+    </ul>
+    <p class="body"><strong>Future directions.</strong> Oracle controllers work; learned policies do not &mdash; the bottleneck is likely long structured token sequences, not discretisation alone. Next steps: train on trajectory-aware or staged oracle labels; use learned or task-adaptive lattices; or hybrid formats that keep decimals for fine motion and discrete tokens only for coarse correction.</p>
     </div>
 
     <div class="result-block" id="rollouts">
@@ -675,7 +635,7 @@
             <td>What replaces bin tokens?</td>
             <td>Nested language action lists</td>
             <td>Templated language-action clauses</td>
-            <td><code>key=value</code> strings or quantization-level tokens</td>
+            <td><code>key=value</code> decimal strings</td>
           </tr>
           <tr>
             <td>Action DoFs</td>
@@ -687,7 +647,7 @@
             <td>Dimension labels</td>
             <td>Positional list structure</td>
             <td>Fixed clause template</td>
-            <td>Explicit names (<code>dx=</code>, <code>roll</code>, <code>q3</code>, …)</td>
+            <td>Explicit names (<code>dx=</code>, <code>roll</code>, …)</td>
           </tr>
           <tr>
             <td>Order invariance</td>
@@ -695,36 +655,11 @@
             <td>Not studied</td>
             <td>Core experiment (permuted training)</td>
           </tr>
-          <tr>
-            <td>Quantized text actions</td>
-            <td>No</td>
-            <td>Integer cm/deg discretization</td>
-            <td>Naive 11-level quantization (Case III)</td>
-          </tr>
-          <tr>
-            <td>Training setup</td>
-            <td>LoRA · Bridge V2</td>
-            <td>Large-scale pre-training</td>
-            <td>4-bit QLoRA · 10k steps · LIBERO-Spatial</td>
-          </tr>
-          <tr>
-            <td>Primary evaluation focus</td>
-            <td>VQA retention · OOD manipulation</td>
-            <td>Zero-shot new embodiments</td>
-            <td>Task success · order invariance · LIBERO-PRO robustness</td>
-          </tr>
-          <tr>
-            <td>Inference</td>
-            <td>Pure autoregressive text</td>
-            <td>Hybrid (language + diffusion expert)</td>
-            <td>Autoregressive text &rarr; regex / quantization parser</td>
-          </tr>
         </tbody>
       </table>
     </div>
 
-    <p class="body"><strong>Where we differ.</strong> We start from <strong>OpenVLA</strong> rather than Gemma or a custom LAP stack, and ask a complementary question: once actions are text, can the model bind values to <em>named</em> dimensions rather than to string position? Our <code>dx=0.012&nbsp;…</code> format is finer-grained and explicitly labeled, full rotation is included, and permuted training makes order invariance measurable (e.g. 75 distinct orderings in 77 sampled steps). Case&nbsp;III adds <strong>naive quantization</strong> &mdash; text-action tokens at discrete quantization levels (<code>q1&hellip;qN</code>) distinct from LAP&rsquo;s centimeter/degree templates or VLM2VLA&rsquo;s nested lists.</p>
-    <p class="body"><strong>Scope.</strong> VLM2VLA and LAP target broader generalization (VQA preservation, cross-embodiment pre-training). Our course project is narrower but deeper on representation design: three controlled encodings on one benchmark. We view our work as an OpenVLA-centric extension of the actions-as-text paradigm, with order invariance and quantization as the novel axes.</p>
+    <p class="body"><strong>Where we differ.</strong> Our question is about the action string itself: once controls are written as text, can a model bind each value to its dimension name rather than to string position? VLM2VLA uses positional nested lists over translation; LAP uses fixed centimeter/degree templates. We instead emit named <code>key=value</code> decimals over full 7-DoF; permuted training teaches label binding, and at inference the model generates actions with varying dimension order. VLM2VLA and LAP aim at broader generalization (VQA retention, cross-embodiment pre-training); we trade that breadth for a narrower, controlled study of text-action encodings on LIBERO-Spatial, with order invariance as the main novel axis.</p>
   </div>
 </section>
 
@@ -732,7 +667,7 @@
   <div class="wrap">
     <div>
       <div class="big">actions<span style="color:var(--accent)">.</span>as<span style="color:var(--accent)">.</span>text</div>
-      <div class="meta" style="margin-top:8px">Continuous Language-Action Encoding for OpenVLA</div>
+      <div class="meta" style="margin-top:8px">Replacing OpenVLA&rsquo;s binned action tokens with text-action tokens</div>
     </div>
     <div class="meta">
       Jackson Earls · Alireza Rahmansetayesh<br>
